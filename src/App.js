@@ -193,7 +193,7 @@ export function App() {
 }
 
 function Home() {
-  return <h2 className="text-center my-4">CHƯƠNG TRÌNH QUẢN LÝ GIÀYY</h2>;
+  return <h2 className="text-center my-4">CHƯƠNG TRÌNH QUẢN LÝ GIÀY</h2>;
 }
 
 function ProductDetail() {
