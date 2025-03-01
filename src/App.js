@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { shoes } from './shoes';
 import HomeIcon from '@mui/icons-material/Home';
 import { BrowserRouter, Routes, Route, NavLink, useParams, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Button, Form, FormControl, Container, Row, Col, Card } from 'react-bootstrap';
+import { Navbar, Nav, Button, Form, FormControl, Container, Row, Col, Card, DropdownButton, Dropdown, Alert, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export function App2() {
+export function Products() {
   const [shoeList, setShoeList] = useState(shoes);
   const [editingId, setEditingId] = useState(null);
   const [editedName, setEditedName] = useState('');
@@ -15,12 +15,14 @@ export function App2() {
   const [editedColor, setEditedColor] = useState('');
   const [editedStock, setEditedStock] = useState('');
   const [editedImage, setEditedImage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState('');
 
   const handleEditClick = (shoe) => {
     setEditingId(shoe.id);
     setEditedName(shoe.name);
     setEditedPrice(shoe.price);
-    setEditedSize(shoe.sizes.join(', ')); 
+    setEditedSize(shoe.sizes.join(', '));
     setEditedType(shoe.type);
     setEditedColor(shoe.color);
     setEditedStock(shoe.stock);
@@ -36,13 +38,13 @@ export function App2() {
   const handleSaveClick = (id) => {
     const updatedShoes = shoeList.map(shoe => {
       if (shoe.id === id) {
-        return { 
-          ...shoe, 
-          name: editedName, 
-          price: editedPrice, 
-          sizes: editedSize.split(',').map(size => size.trim()), 
-          type: editedType, 
-          color: editedColor, 
+        return {
+          ...shoe,
+          name: editedName,
+          price: editedPrice,
+          sizes: editedSize.split(',').map(size => size.trim()),
+          type: editedType,
+          color: editedColor,
           stock: editedStock,
           image: editedImage
         };
@@ -68,59 +70,93 @@ export function App2() {
     }
   };
 
+  const handleShowModal = (content) => {
+    setModalContent(content);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setModalContent('');
+  };
+
   return (
     <Container>
-      <NavLink to="/" className="btn btn-primary mb-3"><i className="bi bi-house-door"><HomeIcon/></i></NavLink>
+      <NavLink to="/" className="btn btn-primary mb-3"><HomeIcon /></NavLink>
       <Row>
         {shoeList.map(shoe => (
           <Col key={shoe.id} md={4} lg={3} className="mb-4">
-            <Card>
-              {editingId === shoe.id ? (
-                <Card.Body>
-                  <Form>
-                    <Form.Group className="mb-3">
-                      <Form.Control type="text" value={editedName} onChange={(e) => setEditedName(e.target.value)} placeholder="Name" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Control type="text" value={editedPrice} onChange={(e) => setEditedPrice(e.target.value)} placeholder="Price" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Control type="text" value={editedColor} onChange={(e) => setEditedColor(e.target.value)} placeholder="Color" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Control type="text" value={editedSize} onChange={(e) => setEditedSize(e.target.value)} placeholder="Sizes (comma separated)" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Control type="text" value={editedStock} onChange={(e) => setEditedStock(e.target.value)} placeholder="Stock" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Control type="text" value={editedType} onChange={(e) => setEditedType(e.target.value)} placeholder="Type" />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Control type="file" onChange={handleImageChange} />
-                    </Form.Group>
-                    {editedImage && <img src={editedImage} alt="Preview" className="img-thumbnail mb-3" />}
-                    <Button variant="success" onClick={() => handleSaveClick(shoe.id)}>Save</Button>
-                  </Form>
-                </Card.Body>
-              ) : (
-                <Card.Body>
-                  <Card.Title>{shoe.name}</Card.Title>
-                  <Card.Text>Type: {shoe.type}</Card.Text>
-                  <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
-                  <Card.Text>Color: {shoe.color}</Card.Text>
-                  <Card.Text>Price: {shoe.price}</Card.Text>
-                  <Card.Text>Stock: {shoe.stock}</Card.Text>
-                  <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
-                  <NavLink to={`/products/${shoe.id}`} className="btn btn-info mb-2">Chi tiết</NavLink>
-                  <Button variant="warning" onClick={() => handleEditClick(shoe)} className="me-2">Edit</Button>
-                  <Button variant="danger" onClick={() => handleDeleteClick(shoe.id)}>Delete</Button>
-                </Card.Body>
-              )}
+            <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              {(() => {
+                if (editingId === shoe.id) {
+                  return (
+                    <Card.Body>
+                      <Form>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Name</Form.Label>
+                          <Form.Control type="text" value={editedName} onChange={(e) => setEditedName(e.target.value)} placeholder="Name" />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Price</Form.Label>
+                          <Form.Control type="text" value={editedPrice} onChange={(e) => setEditedPrice(e.target.value)} placeholder="Price" />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Color</Form.Label>
+                          <Form.Control type="text" value={editedColor} onChange={(e) => setEditedColor(e.target.value)} placeholder="Color" />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Sizes (comma separated)</Form.Label>
+                          <Form.Control type="text" value={editedSize} onChange={(e) => setEditedSize(e.target.value)} placeholder="Sizes (comma separated)" />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Stock</Form.Label>
+                          <Form.Control type="text" value={editedStock} onChange={(e) => setEditedStock(e.target.value)} placeholder="Stock" />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Type</Form.Label>
+                          <Form.Control type="text" value={editedType} onChange={(e) => setEditedType(e.target.value)} placeholder="Type" />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Image</Form.Label>
+                          <Form.Control type="file" onChange={handleImageChange} />
+                        </Form.Group>
+                        {editedImage && <img src={editedImage} alt="Preview" className="img-thumbnail mb-3" />}
+                        <Button variant="success" onClick={() => handleSaveClick(shoe.id)}>Save</Button>
+                      </Form>
+                    </Card.Body>
+                  );
+                } else {
+                  return (
+                    <Card.Body style={{ flex: '1 0 auto' }}>
+                      <Card.Title>{shoe.name}</Card.Title>
+                      <Card.Text>Type: {shoe.type}</Card.Text>
+                      <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
+                      <Card.Text>Color: {shoe.color}</Card.Text>
+                      <Card.Text>Price: {shoe.price}</Card.Text>
+                      <Card.Text>Stock: {shoe.stock}</Card.Text>
+                      <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
+                      <NavLink to={`/products/${shoe.id}`} className="btn btn-info mb-2">Chi tiết</NavLink>
+                      <Button variant="warning" onClick={() => handleEditClick(shoe)} className="me-2">Edit</Button>
+                      <Button variant="danger" onClick={() => handleDeleteClick(shoe.id)}>Delete</Button>
+                    </Card.Body>
+                  );
+                }
+              })()}
             </Card>
           </Col>
         ))}
       </Row>
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Modal Title</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{modalContent}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }
@@ -136,8 +172,8 @@ export function App() {
             <Nav className="me-auto">
               <Nav.Link as={NavLink} to="/products">Products</Nav.Link>
               <Nav.Link as={NavLink} to="/addProduct">Add Product</Nav.Link>
-              <Nav.Link as={NavLink} to="/search">Search</Nav.Link>
-              <Nav.Link as={NavLink} to="/filter">Filter</Nav.Link>
+              <Nav.Link as={NavLink} to="/search">Search Product</Nav.Link>
+              <Nav.Link as={NavLink} to="/filter">Filter Product</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -145,9 +181,8 @@ export function App() {
       <Container className="mt-4">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/products" element={<App2 />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/products/delete/:id" element={<DeleteProduct />} />
           <Route path="/addProduct" element={<AddProduct />} />
           <Route path="/search" element={<Search />} />
           <Route path="/filter" element={<Filter />} />
@@ -158,7 +193,7 @@ export function App() {
 }
 
 function Home() {
-  return <h2>CHƯƠNG TRÌNH QUẢN LÝ GIÀY</h2>;
+  return <h2 className="text-center my-4">CHƯƠNG TRÌNH QUẢN LÝ GIÀY</h2>;
 }
 
 function ProductDetail() {
@@ -166,43 +201,29 @@ function ProductDetail() {
   const shoe = shoes.find((shoe) => shoe.id === parseInt(id));
 
   if (!shoe) {
-    return <h2>Shoe not found</h2>;
+    return <Alert variant="danger" className="text-center my-4">Shoe not found</Alert>;
   }
 
   return (
-    <div>
-      <NavLink to="/products" className="btn btn-primary mb-3"><i className="bi bi-house-door"></i> <HomeIcon/></NavLink>
-      <h2>{shoe.name}</h2>
-      <p>Type: {shoe.type}</p>
-      <p>Sizes: {shoe.sizes.join(', ')}</p>
-      <p>Color: {shoe.color}</p>
-      <p>Price: {shoe.price}</p>
-      <p>Stock: {shoe.stock}</p>
-      <img src={shoe.image} alt={shoe.name} className="img-thumbnail" />
-    </div>
+    <Container>
+      <NavLink to="/products" className="btn btn-primary mb-3"><HomeIcon /> Back</NavLink>
+      <Card>
+        <Card.Body>
+          <Card.Title>{shoe.name}</Card.Title>
+          <Card.Text>Type: {shoe.type}</Card.Text>
+          <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
+          <Card.Text>Color: {shoe.color}</Card.Text>
+          <Card.Text>Price: {shoe.price}</Card.Text>
+          <Card.Text>Stock: {shoe.stock}</Card.Text>
+          <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
+        </Card.Body>
+      </Card>
+    </Container>
   );
 }
 
-function DeleteProduct() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [shoeList, setShoeList] = useState(shoes);
 
-  const handleDelete = () => {
-    setShoeList(shoeList.filter(shoe => shoe.id !== parseInt(id)));
-    navigate('/products');
-  };
-
-  return (
-    <div>
-      <h2>Are you sure you want to delete this product?</h2>
-      <Button variant="danger" onClick={handleDelete} className="me-2">Yes</Button>
-      <NavLink to="/products" className="btn btn-secondary">No</NavLink>
-    </div>
-  );
-}
-
-function AddProduct() {  
+function AddProduct() {
   const [shoeList, setShoeList] = useState(shoes);
   const [addName, setAddName] = useState('');
   const [addSize, setAddSize] = useState('');
@@ -244,27 +265,34 @@ function AddProduct() {
 
   return (
     <Container>
-      <NavLink to="/" className="btn btn-primary mb-3"><i className="bi bi-house-door"><HomeIcon/></i></NavLink>
+      <NavLink to="/" className="btn btn-primary mb-3"><HomeIcon /></NavLink>
       <Form>
         <Form.Group className="mb-3">
+          <Form.Label>Name</Form.Label>
           <Form.Control type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder="Name" />
         </Form.Group>
         <Form.Group className="mb-3">
+          <Form.Label>Price</Form.Label>
           <Form.Control type="text" value={addPrice} onChange={(e) => setAddPrice(e.target.value)} placeholder="Price" />
         </Form.Group>
         <Form.Group className="mb-3">
+          <Form.Label>Color</Form.Label>
           <Form.Control type="text" value={addColor} onChange={(e) => setAddColor(e.target.value)} placeholder="Color" />
         </Form.Group>
         <Form.Group className="mb-3">
+          <Form.Label>Sizes (comma separated)</Form.Label>
           <Form.Control type="text" value={addSize} onChange={(e) => setAddSize(e.target.value)} placeholder="Sizes (comma separated)" />
         </Form.Group>
         <Form.Group className="mb-3">
+          <Form.Label>Stock</Form.Label>
           <Form.Control type="text" value={addStock} onChange={(e) => setAddStock(e.target.value)} placeholder="Stock" />
         </Form.Group>
         <Form.Group className="mb-3">
+          <Form.Label>Type</Form.Label>
           <Form.Control type="text" value={addType} onChange={(e) => setAddType(e.target.value)} placeholder="Type" />
         </Form.Group>
         <Form.Group className="mb-3">
+          <Form.Label>Image</Form.Label>
           <Form.Control type="file" onChange={handleImageChange} />
         </Form.Group>
         {addImage && <img src={addImage} alt="Preview" className="img-thumbnail mb-3" />}
@@ -275,57 +303,106 @@ function AddProduct() {
 }
 
 function Search() {
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [shoeList, setShoeList] = useState(shoes);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const handleSearchClick = () => {
-    setShowSearchResults(true);
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
+
+  const filteredShoes = shoeList.filter(shoe => {
+    return shoe.name.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <Container>
-      <NavLink to="/" className="btn btn-primary mb-3"><i className="bi bi-house-door"><HomeIcon/></i></NavLink>
+      <NavLink to="/" className="btn btn-primary mb-3"><HomeIcon /></NavLink>
       <Form className="d-flex mb-3">
-        <FormControl type="search" placeholder="Search..." className="me-2" />
-        <Button variant="primary" onClick={handleSearchClick}>Search</Button>
+        <FormControl type="search" placeholder="Search..." value={searchTerm} onChange={handleSearchChange} className="me-2" />
+        <Button variant="primary">Search</Button>
       </Form>
-      {showSearchResults && (
-        <h2 className="text-danger">Danh sách giày tìm kiếm</h2>
-      )}
+      <Row>
+        {filteredShoes.map(shoe => (
+          <Col key={shoe.id} md={4} lg={3} className="mb-4">
+            <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Card.Body style={{ flex: '1 0 auto' }}>
+                <Card.Title>{shoe.name}</Card.Title>
+                <Card.Text>Type: {shoe.type}</Card.Text>
+                <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
+                <Card.Text>Color: {shoe.color}</Card.Text>
+                <Card.Text>Price: {shoe.price}</Card.Text>
+                <Card.Text>Stock: {shoe.stock}</Card.Text>
+                <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
     </Container>
   );
 }
 
 function Filter() {
+  const [shoeList, setShoeList] = useState(shoes);
   const [filterTerm, setFilterTerm] = useState('');
   const [filterType, setFilterType] = useState('name');
-  const [showFilterOptions, setShowFilterOptions] = useState(false);
 
-  const toggleFilterOptions = () => {
-    setShowFilterOptions(!showFilterOptions);
-  };
-
-  const setFilter = (type) => {
+  const handleFilterChange = (type) => {
     setFilterType(type);
-    setShowFilterOptions(false);
   };
+
+  const handleFilterTermChange = (e) => {
+    setFilterTerm(e.target.value);
+  };
+
+  const filteredShoes = shoeList.filter(shoe => {
+    if (filterType === 'name') {
+      return shoe.name.toLowerCase().includes(filterTerm.toLowerCase());
+    } else if (filterType === 'price') {
+      return shoe.price.toLowerCase().includes(filterTerm.toLowerCase());
+    } else if (filterType === 'type') {
+      return shoe.type.toLowerCase().includes(filterTerm.toLowerCase());
+    } else if (filterType === 'color') {
+      return shoe.color.toLowerCase().includes(filterTerm.toLowerCase());
+    } else if (filterType === 'size') {
+      return shoe.sizes.join(', ').toLowerCase().includes(filterTerm.toLowerCase());
+    } else if (filterType === 'stock') {
+      return shoe.stock.toString().includes(filterTerm);
+    }
+    return true;
+  });
 
   return (
     <Container>
-      <NavLink to="/" className="btn btn-primary mb-3"><i className="bi bi-house-door"><HomeIcon/></i></NavLink>
+      <NavLink to="/" className="btn btn-primary mb-3"><HomeIcon /></NavLink>
       <Form className="d-flex mb-3">
-        <FormControl type="text" value={filterTerm} onChange={(e) => setFilterTerm(e.target.value)} placeholder="Filter..." className="me-2" />
-        <Button variant="secondary" onClick={toggleFilterOptions}><i className="bi bi-filter"></i></Button>
+        <FormControl type="text" value={filterTerm} onChange={handleFilterTermChange} placeholder="Filter..." className="me-2" />
+        <DropdownButton id="dropdown-basic-button" title="Filter Options" variant="secondary">
+          <Dropdown.Item onClick={() => handleFilterChange('name')}>Tên</Dropdown.Item>
+          <Dropdown.Item onClick={() => handleFilterChange('price')}>Giá</Dropdown.Item>
+          <Dropdown.Item onClick={() => handleFilterChange('type')}>Loại</Dropdown.Item>
+          <Dropdown.Item onClick={() => handleFilterChange('color')}>Màu sắc</Dropdown.Item>
+          <Dropdown.Item onClick={() => handleFilterChange('size')}>Kích thước</Dropdown.Item>
+          <Dropdown.Item onClick={() => handleFilterChange('stock')}>Số lượng</Dropdown.Item>
+        </DropdownButton>
       </Form>
-      {showFilterOptions && (
-        <div className="d-flex flex-column align-items-center">
-          <Button variant="light" onClick={() => setFilter('name')} className="mb-2">Tên</Button>
-          <Button variant="light" onClick={() => setFilter('price')} className="mb-2">Giá</Button>
-          <Button variant="light" onClick={() => setFilter('type')} className="mb-2">Loại</Button>
-          <Button variant="light" onClick={() => setFilter('color')} className="mb-2">Màu sắc</Button>
-          <Button variant="light" onClick={() => setFilter('size')} className="mb-2">Kích thước</Button>
-          <Button variant="light" onClick={() => setFilter('stock')} className="mb-2">Số lượng</Button>
-        </div>
-      )}
+      <Row>
+        {filteredShoes.map(shoe => (
+          <Col key={shoe.id} md={4} lg={3} className="mb-4">
+            <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Card.Body style={{ flex: '1 0 auto' }}>
+                <Card.Title>{shoe.name}</Card.Title>
+                <Card.Text>Type: {shoe.type}</Card.Text>
+                <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
+                <Card.Text>Color: {shoe.color}</Card.Text>
+                <Card.Text>Price: {shoe.price}</Card.Text>
+                <Card.Text>Stock: {shoe.stock}</Card.Text>
+                <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
     </Container>
   );
 }
