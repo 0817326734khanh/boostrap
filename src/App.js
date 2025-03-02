@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { shoes } from './shoes';
 import HomeIcon from '@mui/icons-material/Home';
 import { BrowserRouter, Routes, Route, NavLink, useParams, useNavigate } from 'react-router-dom';
-import { Navbar, Nav, Button, Form, FormControl, Container, Row, Col, Card, DropdownButton, Dropdown, Alert, Modal } from 'react-bootstrap';
+import { Navbar, Nav, Button, Form, FormControl, Container, Row, Col, Card, DropdownButton, Dropdown, Alert } from 'react-bootstrap';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
 
 export function Products() {
   const [shoeList, setShoeList] = useState(shoes);
@@ -15,8 +17,7 @@ export function Products() {
   const [editedColor, setEditedColor] = useState('');
   const [editedStock, setEditedStock] = useState('');
   const [editedImage, setEditedImage] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState('');
+  const [visibleShoes, setVisibleShoes] = useState(10);
 
   const handleEditClick = (shoe) => {
     setEditingId(shoe.id);
@@ -70,93 +71,86 @@ export function Products() {
     }
   };
 
-  const handleShowModal = (content) => {
-    setModalContent(content);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setModalContent('');
+  const fetchMoreData = () => {
+    setVisibleShoes((prevVisibleShoes) => prevVisibleShoes + 10);
   };
 
   return (
     <Container>
       <NavLink to="/" className="btn btn-primary mb-3"><HomeIcon /></NavLink>
-      <Row>
-        {shoeList.map(shoe => (
-          <Col key={shoe.id} md={4} lg={3} className="mb-4">
-            <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              {(() => {
-                if (editingId === shoe.id) {
-                  return (
-                    <Card.Body>
-                      <Form>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Name</Form.Label>
-                          <Form.Control type="text" value={editedName} onChange={(e) => setEditedName(e.target.value)} placeholder="Name" />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Price</Form.Label>
-                          <Form.Control type="text" value={editedPrice} onChange={(e) => setEditedPrice(e.target.value)} placeholder="Price" />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Color</Form.Label>
-                          <Form.Control type="text" value={editedColor} onChange={(e) => setEditedColor(e.target.value)} placeholder="Color" />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Sizes (comma separated)</Form.Label>
-                          <Form.Control type="text" value={editedSize} onChange={(e) => setEditedSize(e.target.value)} placeholder="Sizes (comma separated)" />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Stock</Form.Label>
-                          <Form.Control type="text" value={editedStock} onChange={(e) => setEditedStock(e.target.value)} placeholder="Stock" />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Type</Form.Label>
-                          <Form.Control type="text" value={editedType} onChange={(e) => setEditedType(e.target.value)} placeholder="Type" />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Image</Form.Label>
-                          <Form.Control type="file" onChange={handleImageChange} />
-                        </Form.Group>
-                        {editedImage && <img src={editedImage} alt="Preview" className="img-thumbnail mb-3" />}
-                        <Button variant="success" onClick={() => handleSaveClick(shoe.id)}>Save</Button>
-                      </Form>
-                    </Card.Body>
-                  );
-                } else {
-                  return (
-                    <Card.Body style={{ flex: '1 0 auto' }}>
-                      <Card.Title>{shoe.name}</Card.Title>
-                      <Card.Text>Type: {shoe.type}</Card.Text>
-                      <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
-                      <Card.Text>Color: {shoe.color}</Card.Text>
-                      <Card.Text>Price: {shoe.price}</Card.Text>
-                      <Card.Text>Stock: {shoe.stock}</Card.Text>
-                      <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
-                      <NavLink to={`/products/${shoe.id}`} className="btn btn-info mb-2">Chi tiết</NavLink>
-                      <Button variant="warning" onClick={() => handleEditClick(shoe)} className="me-2">Edit</Button>
-                      <Button variant="danger" onClick={() => handleDeleteClick(shoe.id)}>Delete</Button>
-                    </Card.Body>
-                  );
-                }
-              })()}
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modal Title</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{modalContent}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <InfiniteScroll
+        dataLength={visibleShoes}
+        next={fetchMoreData}
+        hasMore={visibleShoes < shoeList.length}
+        loader={<h4>Loading...</h4>}
+      >
+        <Row>
+          {shoeList.slice(0, visibleShoes).map(shoe => (
+            <Col key={shoe.id} style={{ flex: '0 0 20%' }} md={4} lg={3} className="mb-4">
+              <Card className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full" style={{ height: '100%' }}>
+                {(() => {
+                  if (editingId === shoe.id) {
+                    return (
+                      <Card.Body>
+                        <Form>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Name</Form.Label>
+                            <Form.Control type="text" value={editedName} onChange={(e) => setEditedName(e.target.value)} placeholder="Name" />
+                          </Form.Group>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Price</Form.Label>
+                            <Form.Control type="text" value={editedPrice} onChange={(e) => setEditedPrice(e.target.value)} placeholder="Price" />
+                          </Form.Group>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Color</Form.Label>
+                            <Form.Control type="text" value={editedColor} onChange={(e) => setEditedColor(e.target.value)} placeholder="Color" />
+                          </Form.Group>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Sizes (comma separated)</Form.Label>
+                            <Form.Control type="text" value={editedSize} onChange={(e) => setEditedSize(e.target.value)} placeholder="Sizes (comma separated)" />
+                          </Form.Group>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Stock</Form.Label>
+                            <Form.Control type="text" value={editedStock} onChange={(e) => setEditedStock(e.target.value)} placeholder="Stock" />
+                          </Form.Group>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Type</Form.Label>
+                            <Form.Control type="text" value={editedType} onChange={(e) => setEditedType(e.target.value)} placeholder="Type" />
+                          </Form.Group>
+                          <Form.Group className="mb-3">
+                            <Form.Label>Image</Form.Label>
+                            <Form.Control type="file" onChange={handleImageChange} />
+                          </Form.Group>
+                          {editedImage && <img src={editedImage} alt="Preview" className="img-thumbnail mb-3" />}
+                          <Button variant="success" onClick={() => handleSaveClick(shoe.id)}>Save</Button>
+                        </Form>
+                      </Card.Body>
+                    );
+                  } else {
+                    return (
+                      <Card key={shoe.id} className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full" style={{ height: '100%' }}>
+                        <Card.Img variant="top" src={shoe.image} alt={shoe.name} className="w-full h-48 object-cover" />
+                        <Card.Body className="p-4 flex flex-col h-full">
+                          <Card.Title className="text-lg font-semibold">{shoe.name}</Card.Title>
+                          <Card.Text>Type: {shoe.type}</Card.Text>
+                          <Card.Text>Price: {shoe.price}</Card.Text>
+                          <NavLink to={`/products/${shoe.id}`} className="block bg-blue-500 text-white text-center py-2 mt-auto rounded-md mb-2">
+                            Chi tiết
+                          </NavLink>
+                          <div className="flex justify-between space-x-2">
+                            <Button variant="warning" onClick={() => handleEditClick(shoe)} className="bg-yellow-500 text-white px-4 py-2 rounded-md">Edit</Button>
+                            <Button variant="danger" onClick={() => handleDeleteClick(shoe.id)} className="bg-red-500 text-white px-4 py-2 rounded-md">Delete</Button>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    );
+                  }
+                })()}
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </InfiniteScroll>
     </Container>
   );
 }
@@ -166,7 +160,7 @@ export function App() {
     <BrowserRouter>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand href="/">Shoe Management</Navbar.Brand>
+          <Navbar.Brand as={NavLink} to="/">Shoe Management</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
@@ -194,6 +188,7 @@ export function App() {
 
 function Home() {
   return <h2 className="text-center my-4">CHƯƠNG TRÌNH QUẢN LÝ GIÀY</h2>;
+
 }
 
 function ProductDetail() {
@@ -207,7 +202,7 @@ function ProductDetail() {
   return (
     <Container>
       <NavLink to="/products" className="btn btn-primary mb-3"><HomeIcon /> Back</NavLink>
-      <Card>
+      <Card style={{ width: '18rem' }}>
         <Card.Body>
           <Card.Title>{shoe.name}</Card.Title>
           <Card.Text>Type: {shoe.type}</Card.Text>
@@ -305,9 +300,14 @@ function AddProduct() {
 function Search() {
   const [shoeList, setShoeList] = useState(shoes);
   const [searchTerm, setSearchTerm] = useState('');
+  const [visibleShoes, setVisibleShoes] = useState(10);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const fetchMoreData = () => {
+    setVisibleShoes((prevVisibleShoes) => prevVisibleShoes + 10);
   };
 
   const filteredShoes = shoeList.filter(shoe => {
@@ -315,37 +315,57 @@ function Search() {
   });
 
   return (
-    <Container>
+    <div className="container mx-auto p-4">
       <NavLink to="/" className="btn btn-primary mb-3"><HomeIcon /></NavLink>
-      <Form className="d-flex mb-3">
-        <FormControl type="search" placeholder="Search..." value={searchTerm} onChange={handleSearchChange} className="me-2" />
-        <Button variant="primary">Search</Button>
-      </Form>
-      <Row>
-        {filteredShoes.map(shoe => (
-          <Col key={shoe.id} md={4} lg={3} className="mb-4">
-            <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Card.Body style={{ flex: '1 0 auto' }}>
-                <Card.Title>{shoe.name}</Card.Title>
+      <form className="flex mb-3">
+        <input
+          type="search"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="flex-grow p-2 border border-gray-300 rounded-md mr-2"
+        />
+        <button type="button" className="bg-blue-500 text-white p-2 rounded-md">
+          Search
+        </button>
+      </form>
+      {filteredShoes.length === 0 && (
+        <Alert variant="warning" className="text-center">
+          No shoes found matching your search term.
+        </Alert>
+      )}
+      <InfiniteScroll
+        dataLength={visibleShoes}
+        next={fetchMoreData}
+        hasMore={visibleShoes < filteredShoes.length}
+        loader={<h4>Loading...</h4>}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {filteredShoes.slice(0, visibleShoes).map(shoe => (
+            <Card key={shoe.id} className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full">
+              <Card.Img variant="top" src={shoe.image} alt={shoe.name} className="w-full h-48 object-cover" />
+              <Card.Body className="p-4 flex flex-col h-full">
+                <Card.Title className="text-lg font-semibold">{shoe.name}</Card.Title>
                 <Card.Text>Type: {shoe.type}</Card.Text>
-                <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
-                <Card.Text>Color: {shoe.color}</Card.Text>
                 <Card.Text>Price: {shoe.price}</Card.Text>
-                <Card.Text>Stock: {shoe.stock}</Card.Text>
-                <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
+                <NavLink to={`/products/${shoe.id}`} className="block bg-blue-500 text-white text-center py-2 mt-auto rounded-md">
+                  Chi tiết
+                </NavLink>
               </Card.Body>
             </Card>
-          </Col>
-        ))}
-      </Row>
-    </Container>
+          ))}
+        </div>
+      </InfiniteScroll>
+    </div>
   );
 }
+
 
 function Filter() {
   const [shoeList, setShoeList] = useState(shoes);
   const [filterTerm, setFilterTerm] = useState('');
   const [filterType, setFilterType] = useState('name');
+  const [visibleShoes, setVisibleShoes] = useState(10);
 
   const handleFilterChange = (type) => {
     setFilterType(type);
@@ -353,6 +373,10 @@ function Filter() {
 
   const handleFilterTermChange = (e) => {
     setFilterTerm(e.target.value);
+  };
+
+  const fetchMoreData = () => {
+    setVisibleShoes((prevVisibleShoes) => prevVisibleShoes + 10);
   };
 
   const filteredShoes = shoeList.filter(shoe => {
@@ -386,23 +410,33 @@ function Filter() {
           <Dropdown.Item onClick={() => handleFilterChange('stock')}>Số lượng</Dropdown.Item>
         </DropdownButton>
       </Form>
-      <Row>
-        {filteredShoes.map(shoe => (
-          <Col key={shoe.id} md={4} lg={3} className="mb-4">
-            <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Card.Body style={{ flex: '1 0 auto' }}>
-                <Card.Title>{shoe.name}</Card.Title>
-                <Card.Text>Type: {shoe.type}</Card.Text>
-                <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
-                <Card.Text>Color: {shoe.color}</Card.Text>
-                <Card.Text>Price: {shoe.price}</Card.Text>
-                <Card.Text>Stock: {shoe.stock}</Card.Text>
-                <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <InfiniteScroll
+        dataLength={visibleShoes}
+        next={fetchMoreData}
+        hasMore={visibleShoes < filteredShoes.length}
+        loader={<h4>Loading...</h4>}
+      >
+        <Row>
+          {filteredShoes.slice(0, visibleShoes).map(shoe => (
+            <Col key={shoe.id} md={4} lg={3} className="mb-4">
+              <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Card.Body className='p-4 flex flex-col h-full'>
+                  <Card.Title>{shoe.name}</Card.Title>
+                  <Card.Text>Type: {shoe.type}</Card.Text>
+                  <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
+                  <Card.Text>Color: {shoe.color}</Card.Text>
+                  <Card.Text>Price: {shoe.price}</Card.Text>
+                  <Card.Text>Stock: {shoe.stock}</Card.Text>
+                  <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
+                  <NavLink to={`/products/${shoe.id}`} className="block bg-blue-500 text-white text-center py-2 mt-auto rounded-md">
+                    Chi tiết
+                  </NavLink>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </InfiniteScroll>
     </Container>
   );
 }

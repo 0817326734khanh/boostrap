@@ -1,4 +1,4 @@
-
+import Adidas from './assets/images/adidas.png';
 import runningshoe from './assets/images/runningshoe.jpg';
 import convert from './assets/images/convert.jpg';
 import puma from './assets/images/puma.jpg';
@@ -18,6 +18,16 @@ import Adidasforce1 from './assets/images/Adidasforce1.jpg';
 import dunklow from './assets/images/dunklow.jpg';
 import jordan3retro from './assets/images/jordan3retro.jpg';
 import blazermid from './assets/images/blazermid.jpg';
+import nikepegasus from './assets/images/nikepegasus.png';
+import ultraboostlight from './assets/images/ultraboostlight.jpg';
+import airforce1 from './assets/images/airforce1.png';
+import lebron20 from './assets/images/lebron20.jpg';
+import kyrie8 from './assets/images/kyrie8.png';
+import kd15 from './assets/images/kd15.jpg';
+import yeezyboost from './assets/images/yeezyboost.jpg';
+import nb327 from './assets/images/nb327.jpg';
+import reebokclubc from './assets/images/reebokclubc.jpg';
+import mizunowave from './assets/images/mizunowave.jpg';
 export const shoes = [
     {
         id: 1,
@@ -27,7 +37,7 @@ export const shoes = [
         color: "White",
         price: "4.109.000",
         stock: 25,
-        image: runningshoe
+        image: Adidas
       },
       {
         id: 2,
@@ -37,7 +47,7 @@ export const shoes = [
         color: "Black",
         price: "1.500.000",
         stock: 18,
-        image: runningshoe
+        image: runningshoe  
       },
       {
         id: 3,
@@ -207,7 +217,98 @@ export const shoes = [
         price: "2.299.000",
         stock: 130,
         image: blazermid
-    }
+    },
+    {
+      id: 21,
+      name: "Nike Pegasus 40",
+      type: "Running Shoes",
+      sizes: [38, 39, 40, 41, 42, 43],
+      color: "Blue/White",
+      price: "3.500.000",
+      stock: 50,
+      image: nikepegasus
+  }, {
+      id: 22,
+      name: "Adidas Ultraboost Light",
+      type: "Running Shoes",
+      sizes: [39, 40, 41, 42, 43, 44],
+      color: "Black/White",
+      price: "4.200.000",
+      stock: 45,
+      image: ultraboostlight
+  }, {
+      id: 23,
+      name: "Nike Air Force 1 '07",
+      type: "Sneakers",
+      sizes: [39, 40, 41, 42, 43, 44, 45],
+      color: "White",
+      price: "2.500.000",
+      stock: 80,
+      image: airforce1
+  }, {
+      id: 24,
+      name: "Nike LeBron 20",
+      type: "Basketball Shoes",
+      sizes: [40, 41, 42, 43, 44, 45],
+      color: "Red/Black",
+      price: "5.000.000",
+      stock: 35,
+      image: lebron20
+  }, {
+      id: 25,
+      name: "Nike Kyrie 8",
+      type: "Basketball Shoes",
+      sizes: [39, 40, 41, 42, 43, 44],
+      color: "Black/Blue",
+      price: "4.100.000",
+      stock: 40,
+      image: kyrie8
+  }, {
+      id: 26,
+      name: "Nike KD 15",
+      type: "Basketball Shoes",
+      sizes: [40, 41, 42, 43, 44, 45],
+      color: "Yellow/Black",
+      price: "4.500.000",
+      stock: 38,
+      image: kd15
+  }, {
+      id: 27,
+      name: "Adidas Yeezy Boost 350 V2",
+      type: "Sneakers",
+      sizes: [39, 40, 41, 42, 43, 44],
+      color: "Grey/White",
+      price: "7.500.000",
+      stock: 25,
+      image: yeezyboost
+  }, {
+      id: 28,
+      name: "New Balance 327",
+      type: "Casual Shoes",
+      sizes: [37, 38, 39, 40, 41, 42],
+      color: "Beige/Brown",
+      price: "2.800.000",
+      stock: 60,
+      image: nb327
+  }, {
+      id: 29,
+      name: "Reebok Club C 85",
+      type: "Casual Shoes",
+      sizes: [38, 39, 40, 41, 42, 43],
+      color: "White/Green",
+      price: "2.400.000",
+      stock: 55,
+      image: reebokclubc
+  }, {
+      id: 30,
+      name: "Mizuno Wave Rider 26",
+      type: "Running Shoes",
+      sizes: [39, 40, 41, 42, 43, 44],
+      color: "Navy/White",
+      price: "3.200.000",
+      stock: 50,
+      image: mizunowave
+  }
   ];
 
 
