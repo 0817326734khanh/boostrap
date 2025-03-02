@@ -15,8 +15,6 @@ export function Products() {
   const [editedColor, setEditedColor] = useState('');
   const [editedStock, setEditedStock] = useState('');
   const [editedImage, setEditedImage] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState('');
 
   const handleEditClick = (shoe) => {
     setEditingId(shoe.id);
@@ -70,15 +68,6 @@ export function Products() {
     }
   };
 
-  const handleShowModal = (content) => {
-    setModalContent(content);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setModalContent('');
-  };
 
   return (
     <Container>
@@ -146,17 +135,6 @@ export function Products() {
           </Col>
         ))}
       </Row>
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modal Title</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{modalContent}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 }
@@ -166,7 +144,7 @@ export function App() {
     <BrowserRouter>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand href="/">Shoe Management</Navbar.Brand>
+          <Navbar.Brand as={NavLink} to="/">Shoe Management</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
