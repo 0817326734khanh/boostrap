@@ -417,24 +417,21 @@ function Filter() {
         loader={<h4>Loading...</h4>}
       >
         <Row>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {filteredShoes.slice(0, visibleShoes).map(shoe => (
-            <Col key={shoe.id} md={4} lg={3} className="mb-4">
-              <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Card.Body className='p-4 flex flex-col h-full'>
-                  <Card.Title>{shoe.name}</Card.Title>
-                  <Card.Text>Type: {shoe.type}</Card.Text>
-                  <Card.Text>Sizes: {shoe.sizes.join(', ')}</Card.Text>
-                  <Card.Text>Color: {shoe.color}</Card.Text>
-                  <Card.Text>Price: {shoe.price}</Card.Text>
-                  <Card.Text>Stock: {shoe.stock}</Card.Text>
-                  <img src={shoe.image} alt={shoe.name} className="img-thumbnail mb-3" />
-                  <NavLink to={`/products/${shoe.id}`} className="block bg-blue-500 text-white text-center py-2 mt-auto rounded-md">
-                    Chi tiết
-                  </NavLink>
-                </Card.Body>
-              </Card>
-            </Col>
+            <Card key={shoe.id} className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full">
+              <Card.Img variant="top" src={shoe.image} alt={shoe.name} className="w-full h-48 object-cover" />
+              <Card.Body className="p-4 flex flex-col h-full">
+                <Card.Title className="text-lg font-semibold">{shoe.name}</Card.Title>
+                <Card.Text>Type: {shoe.type}</Card.Text>
+                <Card.Text>Price: {shoe.price}</Card.Text>
+                <NavLink to={`/products/${shoe.id}`} className="block bg-blue-500 text-white text-center py-2 mt-auto rounded-md">
+                  Chi tiết
+                </NavLink>
+              </Card.Body>
+            </Card>
           ))}
+        </div>
         </Row>
       </InfiniteScroll>
     </Container>
